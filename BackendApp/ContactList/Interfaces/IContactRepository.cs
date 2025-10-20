@@ -1,0 +1,10 @@
+using ContactList.Entities;
+
+interface IContactRepository
+{
+    public Task<IEnumerable<Contact>> GetAllContactsAsync();
+    public Task<Contact?> GetContactByIdAsync(int id);
+    public Task<Contact> InsertContactAsync(Contact contact);
+    public Task SaveContactChangesAsync();
+    public Task DeleteContactAsync(Contact contact);
+}
