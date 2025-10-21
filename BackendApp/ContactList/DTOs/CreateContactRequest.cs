@@ -9,8 +9,8 @@ public class CreateContactRequest
     public string FirstName { get; set; } = "";
     [Required, MaxLength(100)]
     public string LastName { get; set; } = "";
-    [EmailAddress, MaxLength(512)]
-    public string? Email { get; set; }
+    [Required, EmailAddress, MaxLength(512)]
+    public string Email { get; set; } = "";
     [Required]
     public string Category { get; set; } = "";
     public string? SubCategory { get; set; }

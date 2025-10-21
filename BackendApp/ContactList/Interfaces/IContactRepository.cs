@@ -1,6 +1,6 @@
 using ContactList.Entities;
 
-interface IContactRepository
+public interface IContactRepository
 {
     public Task<IEnumerable<Contact>> GetAllContactsAsync();
     public Task<Contact?> GetContactByIdAsync(int id);

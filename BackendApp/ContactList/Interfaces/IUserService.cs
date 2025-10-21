@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ContactList.Interfaces;
 
-interface IUserService
+public interface IUserService
 {
     Task<IdentityResult> Register(string username, string email, string password);
-    Task<string?> Login(string username, string password);
+    Task<User?> Login(string username, string password);
 }

@@ -42,7 +42,7 @@ public class UserService : IUserService
         return await _userManager.CreateAsync(user, password);
     }
 
-    public async Task<string?> Login(string username, string password)
+    public async Task<User?> Login(string username, string password)
     {
         var user = await _userManager.FindByNameAsync(username);
         if (user == null) return null;
@@ -50,19 +50,6 @@ public class UserService : IUserService
         var isValid = await _userManager.CheckPasswordAsync(user, password);
         if (!isValid) return null;
 
-        return GenerateJwtToken(user);
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            claims: new[] { new Claim(ClaimTypes.Name, user.UserName!) },
-            expires: DateTime.UtcNow.AddHours(2),
-            signingCredentials: creds);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return user;
     }
 }
