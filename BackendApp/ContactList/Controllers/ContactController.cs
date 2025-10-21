@@ -1,116 +1,90 @@
 using ContactList.DTOs;
-using ContactList.Entities;
-using ContactList.Helpers;
+using ContactList.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MiniValidation;
 
 [ApiController]
 [Route("api/[controller]")]
 public class ContactController : ControllerBase
 {
-    private IContactRepository _contactRepository;
+    private readonly IContactService _contactService;
 
-    public ContactController(IContactRepository contactRepository)
+    public ContactController(IContactService contactService)
     {
-        _contactRepository = contactRepository;
+        _contactService = contactService;
     }
-
 
     [HttpGet]
     public async Task<IActionResult> GetContacts()
     {
-        return Ok(await _contactRepository.GetAllContactsAsync());
+        var contacts = await _contactService.GetContactsAsync();
+        return Ok(contacts);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetContactById(int id)
     {
-        var contact = await _contactRepository.GetContactByIdAsync(id);
-        if (contact == null)
+        var result = await _contactService.GetContactByIdAsync(id);
+        if (result.NotFound)
         {
             return NotFound();
         }
 
-        return Ok(contact);
+        return Ok(result.Value);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateContact(CreateContactRequest contactRequest)
     {
-        if (!MiniValidator.TryValidate(contactRequest, out var errors))
+        var result = await _contactService.CreateContactAsync(contactRequest);
+        if (!result.Success)
         {
-            // return ValidationProblem(errors);
-            return ValidationProblem();
+            if (result.ValidationErrors != null)
+            {
+                return ValidationProblem(result.ValidationErrors);
+            }
+
+            return BadRequest();
         }
 
-        if (!Enum.TryParse<ContactType>(contactRequest.Category, true, out var parsedCategory))
-        {
-            // return ValidationProblem(new Dictionary<string, string[]>() { { "Category", new string[] { $"Invalid category: {contactRequest.Category}" } } });
-            return ValidationProblem();
-        }
-
-        var contact = new Contact
-        {
-            FirstName = contactRequest.FirstName,
-            LastName = contactRequest.LastName,
-            Email = contactRequest.Email,
-            DateOfBirth = contactRequest.DateOfBirth,
-            Category = parsedCategory,
-            SubCategory = contactRequest.SubCategory,
-            TelephoneNumber = contactRequest.TelephoneNumber
-        };
-
-        await _contactRepository.InsertContactAsync(contact);
-        return Created($"/contacts/{contact.Id}", contact);
+        var createdContact = result.Value!;
+        return Created($"/contacts/{createdContact.Id}", createdContact);
     }
 
     [Authorize]
     [HttpPut]
     public async Task<IActionResult> EditContact(EditContactRequest req)
     {
-        if (!MiniValidator.TryValidate(req, out var errors))
-        {
-            // return ValidationProblem(errors);
-            return ValidationProblem();
-        }
-
-        var dbContact = await _contactRepository.GetContactByIdAsync(req.Id);
-        if (dbContact == null)
+        var result = await _contactService.UpdateContactAsync(req);
+        if (result.NotFound)
         {
             return NotFound();
         }
 
-        if (!Enum.TryParse<ContactType>(req.Category, true, out var parsedCategory))
+        if (result.ValidationErrors != null)
         {
-            // return ValidationProblem(new Dictionary<string, string[]>() { { "Category", new string[] { $"Invalid category: {req.Category}" } } });
-            return ValidationProblem();
+            return ValidationProblem(result.ValidationErrors);
         }
 
-        dbContact.DateOfBirth = req.DateOfBirth;
-        dbContact.FirstName = req.FirstName;
-        dbContact.LastName = req.LastName;
-        dbContact.Email = req.Email;
-        dbContact.TelephoneNumber = req.TelephoneNumber;
-        dbContact.Category = parsedCategory;
-        dbContact.SubCategory = req.SubCategory;
-
-        await _contactRepository.SaveContactChangesAsync();
-        return Ok(dbContact);
+        return Ok(result.Value);
     }
 
     [Authorize]
     [HttpDelete]
     public async Task<IActionResult> DeleteContact(int id)
     {
-        var contact = await _contactRepository.GetContactByIdAsync(id);
-        if (contact == null)
+        var result = await _contactService.DeleteContactAsync(id);
+        if (result.NotFound)
         {
             return NotFound();
         }
 
-        await _contactRepository.DeleteContactAsync(contact);
+        if (!result.Success)
+        {
+            return BadRequest();
+        }
+
         return Ok();
     }
 }
