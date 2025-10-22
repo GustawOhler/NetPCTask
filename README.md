@@ -20,7 +20,7 @@ End-to-end contact management demo delivered as part of a recruitment task. The 
 dotnet restore
 dotnet build
 dotnet ef database update
-dotnet run
+dotnet run -lp https
 ```
 
 The commands above install dependencies, compile the application, apply EF Core migrations, and start the API. The service listens on the ports configured in `launchSettings.json` and publishes OpenAPI/Swagger documentation via NSwag.

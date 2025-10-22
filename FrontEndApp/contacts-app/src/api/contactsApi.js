@@ -45,7 +45,7 @@ export async function createContact(contact) {
 }
 
 export async function updateContact(id, contact) {
-  let res = await fetch(`${BASE_URL}${API_URL}`, {
+  let res = await fetch(`${BASE_URL}${API_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify(contact),

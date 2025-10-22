@@ -1,16 +1,11 @@
-using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ContactList.Entities;
-using ContactList.DTOs;
-using MiniValidation;
 using ContactList.Interfaces;
 using ContactList.Repositories;
-using ContactList.BusinessLogicServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Update;
 
 var builder = WebApplication.CreateBuilder(args);
 

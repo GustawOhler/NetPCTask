@@ -31,6 +31,7 @@ export default function ContactsPage() {
         contacts={contacts}
         onDelete={handleDelete}
         onEdit={(id) => navigate(`/contacts/${id}/edit`)}
+        onView={(id) => navigate(`/contacts/${id}`)}
         isLogged={isLogged}
       />
     </div>

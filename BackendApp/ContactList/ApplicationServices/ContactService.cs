@@ -54,7 +54,7 @@ public class ContactService : IContactService
         int? subcategoryId = null;
         var subCategoryKey = contactRequest.SubCategory?.Trim();
 
-        if (subCategoryKey != null)
+        if (!string.IsNullOrWhiteSpace(subCategoryKey))
         {
             if (category.Name.Equals("Business", StringComparison.OrdinalIgnoreCase))
             {
@@ -70,17 +70,13 @@ public class ContactService : IContactService
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(subCategoryKey))
+                var subcategory = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
+                if (subcategory == null)
                 {
-                    var existing = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
-                    if (existing != null)
-                    {
-                        subcategoryId = existing.Id;
-                    }
-
-                    var createdSubcategory = await _categoryRepository.CreateSubcategoryAsync(category.Id, subCategoryKey, subCategoryKey);
-                    subcategoryId = createdSubcategory.Id;
+                    subcategory = await _categoryRepository.CreateSubcategoryAsync(category.Id, subCategoryKey, subCategoryKey);
                 }
+
+                subcategoryId = subcategory.Id;
             }
         }
 
@@ -131,7 +127,7 @@ public class ContactService : IContactService
 
         int? subcategoryId = null;
         var subCategoryKey = request.SubCategory?.Trim();
-        if (subCategoryKey != null)
+        if (!string.IsNullOrWhiteSpace(subCategoryKey))
         {
             if (category.Name.Equals("Business", StringComparison.OrdinalIgnoreCase))
             {
@@ -147,17 +143,13 @@ public class ContactService : IContactService
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(subCategoryKey))
+                var subcategory = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
+                if (subcategory == null)
                 {
-                    var existing = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
-                    if (existing != null)
-                    {
-                        subcategoryId = existing.Id;
-                    }
-
-                    var createdSubcategory = await _categoryRepository.CreateSubcategoryAsync(category.Id, subCategoryKey, subCategoryKey);
-                    subcategoryId = createdSubcategory.Id;
+                    subcategory = await _categoryRepository.CreateSubcategoryAsync(category.Id, subCategoryKey, subCategoryKey);
                 }
+
+                subcategoryId = subcategory.Id;
             }
         }
 

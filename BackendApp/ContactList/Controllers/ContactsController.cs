@@ -61,9 +61,22 @@ public class ContactsController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut]
-    public async Task<IActionResult> EditContact(EditContactRequest req)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> EditContact(int id, EditContactRequest req)
     {
+        if (id != req.Id)
+        {
+            return BadRequest(new
+            {
+                title = "Validation error",
+                status = 400,
+                errors = new Dictionary<string, string[]>
+            {
+                { nameof(req.Id), new[] { $"Id in body is different than in URI" } }
+            }
+            });
+        }
+
         var result = await _contactService.UpdateContactAsync(req);
         if (result.NotFound)
         {

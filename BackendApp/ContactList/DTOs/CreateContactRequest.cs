@@ -15,5 +15,6 @@ public class CreateContactRequest
     public string? SubCategory { get; set; }
     [Phone]
     public string? TelephoneNumber { get; set; }
-    public DateTime? DateOfBirth { get; set; }
+    [Required]
+    public DateTime DateOfBirth { get; set; }
 }

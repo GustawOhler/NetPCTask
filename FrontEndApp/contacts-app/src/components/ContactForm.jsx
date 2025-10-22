@@ -64,10 +64,11 @@ export default function ContactForm({ onSave, initialData, categories = [] }) {
         placeholder="Telephone Number"
         value={telephoneNumber}
         onChange={(e) => setTelephoneNumber(e.target.value)}
+        required
       />
       <label>
         Date of Birth:
-        <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+        <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
       </label>
       <label>
         Category:
