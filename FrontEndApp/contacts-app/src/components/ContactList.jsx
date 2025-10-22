@@ -2,6 +2,7 @@ export default function ContactList({ contacts, isLogged, onEdit, onDelete }) {
   const formatDateOfBirth = (value) => {
     if (!value) return "-";
     const parsed = new Date(value);
+    // Fallback if value is not a date
     if (Number.isNaN(parsed.getTime())) {
       const [fallback] = value.split("T");
       return fallback || value;

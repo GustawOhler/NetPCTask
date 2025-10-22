@@ -10,11 +10,13 @@ export default function ContactForm({ onSave, initialData, categories = [] }) {
   const [telephoneNumber, setTelephoneNumber] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
 
+  // Preparing data for showing it in category and subcategory inputs
   const selectedCategory = useMemo(() => categories.find((c) => c.name === category), [categories, category]);
   const isBusinessCategory = selectedCategory?.name?.toLowerCase() === "business";
   const subcategoryOptions = selectedCategory?.subcategories ?? [];
   const subcategoryDataListId = selectedCategory ? `subcategory-options-${selectedCategory.id}` : "subcategory-options";
 
+  // Set data from model from props if it exists
   useEffect(() => {
     if (initialData) {
       setId(initialData.id || null);

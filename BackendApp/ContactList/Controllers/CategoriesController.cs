@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
+/// <summary>
+/// Thin controller to receive requests for Categories
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class CategoriesController : ControllerBase

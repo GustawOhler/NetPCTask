@@ -10,27 +10,23 @@ import { useNavigate } from "react-router-dom";
 export default function NewContactPage() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [categories, setCategories] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
+  // Fetching available categories
   useEffect(() => {
-    let ignore = false;
-
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        if (!ignore) setCategories(data);
+        setAvailableCategories(data);
       } catch (err) {
-        if (!ignore) setErrorMessage("Failed to load categories");
+        setErrorMessage("Failed to load categories");
       } finally {
-        if (!ignore) setLoadingCategories(false);
+        setLoadingCategories(false);
       }
     };
 
     fetchCategories();
-    return () => {
-      ignore = true;
-    };
   }, []);
 
   const handleSubmit = async (contact) => {
@@ -38,6 +34,7 @@ export default function NewContactPage() {
       await createContact(contact);
       navigate("/");
     } catch (err) {
+      // If validation error, use custom way of getting messages
       if (err instanceof ValidationError) {
         setErrorMessage(err.getMessages());
         return false;
@@ -51,7 +48,7 @@ export default function NewContactPage() {
   return (
     <div>
       <h2>Create new contact</h2>
-      {loadingCategories ? <p>Loading categories...</p> : <ContactForm onSave={handleSubmit} categories={categories} />}
+      {loadingCategories ? <p>Loading categories...</p> : <ContactForm onSave={handleSubmit} categories={availableCategories} />}
       <ErrorMessage message={errorMessage} />
     </div>
   );

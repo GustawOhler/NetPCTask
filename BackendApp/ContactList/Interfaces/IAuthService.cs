@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
-using ContactList.Entities;
 
+/// <summary>
+/// Auth service interface for managing JWT
+/// </summary>
 public interface IAuthService
 {
     public string GenerateJwtToken(string username, DateTime expirationDate);

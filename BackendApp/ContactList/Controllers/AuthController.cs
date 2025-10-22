@@ -1,12 +1,11 @@
 using ContactList.DTOs;
 using ContactList.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using MiniValidation;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
+/// <summary>
+/// Thin controller to receive requests for Auth and pass it to Service (handler) layer
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
@@ -51,7 +50,7 @@ public class AuthController : ControllerBase
         }
 
         var user = result.Value!;
-        
+
         var accessToken = _authService.GenerateJwtToken(user.UserName!, DateTime.UtcNow.AddMinutes(15));
         var refreshToken = _authService.GenerateJwtToken(user.UserName!, DateTime.UtcNow.AddDays(7)); // 7 days
 

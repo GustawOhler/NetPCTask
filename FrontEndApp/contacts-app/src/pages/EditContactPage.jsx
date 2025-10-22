@@ -7,35 +7,30 @@ import ErrorMessage from "../components/ErrorMessage";
 import ValidationError from "../helpers/ValidationError";
 import { getCategories } from "../api/categoryApi";
 
+// Page for editing single contact
 export default function EditContactPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [contact, setContact] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  // Fetching contact info and available categories
   useEffect(() => {
-    let ignore = false;
-
     const fetchData = async () => {
       try {
         const [contactData, categoriesData] = await Promise.all([getContactById(id), getCategories()]);
-        if (ignore) return;
         setContact(contactData);
-        setCategories(categoriesData);
+        setAvailableCategories(categoriesData);
       } catch (err) {
-        if (ignore) return;
         setErrorMessage(err instanceof Error ? err.message : "Failed to load data");
       } finally {
-        if (!ignore) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchData();
-    return () => {
-      ignore = true;
-    };
   }, [id]);
 
   const handleSubmit = async (updated) => {
@@ -44,6 +39,7 @@ export default function EditContactPage() {
       await updateContact(id, updated);
       navigate("/");
     } catch (err) {
+      // If validation error, use custom way of getting messages
       if (err instanceof ValidationError) {
         setErrorMessage(err.getMessages());
         return false;
@@ -60,7 +56,7 @@ export default function EditContactPage() {
   return (
     <div>
       <h2>Edit Contact</h2>
-      <ContactForm onSave={handleSubmit} initialData={contact} categories={categories} />
+      <ContactForm onSave={handleSubmit} initialData={contact} categories={availableCategories} />
       <ErrorMessage message={errorMessage} />
     </div>
   );

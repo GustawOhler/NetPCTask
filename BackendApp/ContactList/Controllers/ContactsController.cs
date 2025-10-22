@@ -3,13 +3,16 @@ using ContactList.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+/// <summary>
+/// Thin controller to receive requests for Contacts and pass it to Service (handler) layer
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class ContactController : ControllerBase
+public class ContactsController : ControllerBase
 {
     private readonly IContactService _contactService;
 
-    public ContactController(IContactService contactService)
+    public ContactsController(IContactService contactService)
     {
         _contactService = contactService;
     }
@@ -81,7 +84,7 @@ public class ContactController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteContact(int id)
     {
         var result = await _contactService.DeleteContactAsync(id);

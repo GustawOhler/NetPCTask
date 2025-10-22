@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ContactList.Interfaces;
 
+/// <summary>
+/// User service for handling operations from API
+/// </summary>
 public interface IUserService
 {
     Task<OperationResult<IdentityResult>> Register(RegisterRequest registerRequest);

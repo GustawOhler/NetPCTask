@@ -3,8 +3,6 @@ using ContactList.Entities;
 using ContactList.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
-namespace ContactList.BusinessLogicServices;
-
 public class UserService : IUserService
 {
     private readonly IUserRepository _repository;

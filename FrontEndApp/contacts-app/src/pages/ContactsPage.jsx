@@ -5,6 +5,7 @@ import ContactList from "../components/ContactList";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+// Page for showing list of contacts
 export default function ContactsPage() {
   const [contacts, setContacts] = useState([]);
   const { isLogged, logout } = useAuth();

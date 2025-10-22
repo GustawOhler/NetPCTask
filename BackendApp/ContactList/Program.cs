@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Update;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// DI Setup
 builder.Services.AddDbContext<DbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("ContactDb")));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Setup Identity Core for Authentication and Authorization
 builder.Services.AddIdentityCore<User>(options =>
 {
     options.Password.RequireDigit = true;
@@ -47,6 +49,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+// Setup JWT token
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

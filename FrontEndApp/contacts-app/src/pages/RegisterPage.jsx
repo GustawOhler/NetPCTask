@@ -15,6 +15,7 @@ export default function RegisterPage() {
       await register({ userName: username, email, password });
       navigate("/");
     } catch (e) {
+      // If validation error, use custom way of getting messages
       if (e instanceof ValidationError) {
         setErrorMessages(e.getMessages());
         return;

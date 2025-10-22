@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ContactList.Entities;
 
+/// <summary>
+/// Db Context for Contacts application
+/// </summary>
 public class DbContext : IdentityDbContext<User>
 {
     public DbContext(DbContextOptions<DbContext> options)
@@ -14,6 +17,7 @@ public class DbContext : IdentityDbContext<User>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
         // Relationships
         modelBuilder.Entity<Contact>()
             .HasOne(c => c.Category)

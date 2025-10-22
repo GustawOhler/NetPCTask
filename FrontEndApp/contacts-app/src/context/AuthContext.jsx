@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { loginOnServer, refreshAccessToken, registerOnServer } from "../api/authApi";
 
+// Auth context for shipping auth functions into Pages and letting them know if user is logged
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {

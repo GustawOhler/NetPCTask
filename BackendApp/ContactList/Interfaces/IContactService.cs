@@ -1,6 +1,9 @@
 using ContactList.DTOs;
 using ContactList.Entities;
 
+/// <summary>
+/// Contact service for handling operations from API
+/// </summary>
 public interface IContactService
 {
     Task<IEnumerable<Contact>> GetContactsAsync();

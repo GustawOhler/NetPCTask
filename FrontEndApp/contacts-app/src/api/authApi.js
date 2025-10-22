@@ -5,6 +5,7 @@ const API_PATH = "/api/Auth";
 const FULL_PATH = `${BASE_URL}${API_PATH}`;
 
 export async function loginOnServer(username, password) {
+  // Fetch token along with refresh token cookie
   const res = await fetch(`${FULL_PATH}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -22,9 +23,10 @@ export async function loginOnServer(username, password) {
 }
 
 export async function refreshAccessToken() {
+  // Send refresh token request
   const res = await fetch(`${FULL_PATH}/refresh`, {
     method: "POST",
-    credentials: "include", // cookie zostaje wysłane
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Token refresh failed");
   const data = await res.json();
