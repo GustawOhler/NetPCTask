@@ -13,7 +13,7 @@ export default function EditContactPage() {
   const [contact, setContact] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     let ignore = false;
@@ -39,16 +39,19 @@ export default function EditContactPage() {
   }, [id]);
 
   const handleSubmit = async (updated) => {
+    setErrorMessage(null);
     try {
       await updateContact(id, updated);
       navigate("/");
     } catch (err) {
       if (err instanceof ValidationError) {
         setErrorMessage(err.getMessages());
-        return;
+        return false;
       }
       setErrorMessage(err.message);
+      return false;
     }
+    return true;
   };
 
   if (loading) return <p>Loading...</p>;

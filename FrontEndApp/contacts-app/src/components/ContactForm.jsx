@@ -8,7 +8,7 @@ export default function ContactForm({ onSave, initialData, categories = [] }) {
   const [category, setCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [telephoneNumber, setTelephoneNumber] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [dateOfBirth, setDateOfBirth] = useState("");
 
   const selectedCategory = useMemo(() => categories.find((c) => c.name === category), [categories, category]);
   const isBusinessCategory = selectedCategory?.name?.toLowerCase() === "business";
@@ -35,7 +35,14 @@ export default function ContactForm({ onSave, initialData, categories = [] }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onSave({ id, firstName, lastName, email, category, subCategory, telephoneNumber, dateOfBirth });
+    const contactPayload = { id, firstName, lastName, email, category, subCategory, telephoneNumber };
+    if (dateOfBirth) {
+      contactPayload.dateOfBirth = dateOfBirth;
+    }
+    const result = await onSave(contactPayload);
+    if (!result) {
+      return;
+    }
     setId(null);
     setFirstName("");
     setLastName("");

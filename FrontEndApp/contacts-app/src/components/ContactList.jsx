@@ -1,4 +1,14 @@
 export default function ContactList({ contacts, isLogged, onEdit, onDelete }) {
+  const formatDateOfBirth = (value) => {
+    if (!value) return "-";
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      const [fallback] = value.split("T");
+      return fallback || value;
+    }
+    return parsed.toLocaleDateString();
+  };
+
   return (
     <table>
       <thead>
@@ -22,7 +32,7 @@ export default function ContactList({ contacts, isLogged, onEdit, onDelete }) {
             <td>{c.category.visibleName}</td>
             <td>{c.subcategory?.visibleName ?? "-"}</td>
             <td>{c.telephoneNumber}</td>
-            <td>{c.dateOfBirth}</td>
+            <td>{formatDateOfBirth(c.dateOfBirth)}</td>
             <td>
               {isLogged ? (
                 <>

@@ -1,9 +1,10 @@
+import { useEffect, useState } from "react";
+
 import ContactForm from "../components/ContactForm";
 import ErrorMessage from "../components/ErrorMessage";
 import ValidationError from "../helpers/ValidationError";
 import { createContact } from "../api/contactsApi";
 import { getCategories } from "../api/categoryApi";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function NewContactPage() {
@@ -39,10 +40,12 @@ export default function NewContactPage() {
     } catch (err) {
       if (err instanceof ValidationError) {
         setErrorMessage(err.getMessages());
-        return;
+        return false;
       }
       setErrorMessage(err.message);
+      return false;
     }
+    return true;
   };
 
   return (
