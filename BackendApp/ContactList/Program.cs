@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using ContactList.Entities;
 using ContactList.DTOs;
 using MiniValidation;
-using ContactList.Helpers;
 using ContactList.Interfaces;
 using ContactList.Repositories;
 using ContactList.BusinessLogicServices;
@@ -20,6 +19,7 @@ builder.Services.AddDbContext<DbContext>(opt =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

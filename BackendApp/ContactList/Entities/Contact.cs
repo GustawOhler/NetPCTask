@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using ContactList.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContactList.Entities;
@@ -14,8 +13,10 @@ public class Contact
     public string LastName { get; set; } = "";
     [Required, MaxLength(512)]
     public string Email { get; set; } = "";
-    public ContactType Category { get; set; } = ContactType.Other;
-    public string? SubCategory { get; set; }
+    public int CategoryId { get; set; }
+    public Category Category { get; set; } = null!;
+    public int? SubcategoryId { get; set; }
+    public Subcategory? Subcategory { get; set; }
     [MaxLength(30)]
     public string? TelephoneNumber { get; set; }
     public DateTime? DateOfBirth { get; set; }

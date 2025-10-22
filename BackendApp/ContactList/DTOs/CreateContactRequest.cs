@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using ContactList.Helpers;
 
 namespace ContactList.DTOs;
 

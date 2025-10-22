@@ -23,12 +23,18 @@ public class ContactRepository : IContactRepository
 
     public async Task<IEnumerable<Contact>> GetAllContactsAsync()
     {
-        return await _context.Contacts.ToListAsync();
+        return await _context.Contacts
+            .Include(c => c.Category)
+            .Include(c => c.Subcategory)
+            .ToListAsync();
     }
 
     public async Task<Contact?> GetContactByIdAsync(int id)
     {
-        return await _context.Contacts.FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Contacts
+            .Include(c => c.Category)
+            .Include(c => c.Subcategory)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Contact> InsertContactAsync(Contact contact)

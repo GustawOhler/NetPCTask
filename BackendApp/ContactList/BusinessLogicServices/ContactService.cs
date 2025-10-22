@@ -1,16 +1,17 @@
 using ContactList.DTOs;
 using ContactList.Entities;
-using ContactList.Helpers;
 using ContactList.Interfaces;
 using MiniValidation;
 
 public class ContactService : IContactService
 {
     private readonly IContactRepository _contactRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public ContactService(IContactRepository contactRepository)
+    public ContactService(IContactRepository contactRepository, ICategoryRepository categoryRepository)
     {
         _contactRepository = contactRepository;
+        _categoryRepository = categoryRepository;
     }
 
     public async Task<IEnumerable<Contact>> GetContactsAsync()
@@ -33,7 +34,8 @@ public class ContactService : IContactService
             return OperationResult<Contact>.ValidationFailed(errors);
         }
 
-        if (!Enum.TryParse<ContactType>(contactRequest.Category, true, out var parsedCategory))
+        var category = await _categoryRepository.GetCategoryByNameAsync(contactRequest.Category);
+        if (category == null)
         {
             return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
             {
@@ -49,14 +51,47 @@ public class ContactService : IContactService
             });
         }
 
+        int? subcategoryId = null;
+        var subCategoryKey = contactRequest.SubCategory?.Trim();
+
+        if (subCategoryKey != null)
+        {
+            if (category.Name.Equals("Business", StringComparison.OrdinalIgnoreCase))
+            {
+                var predefined = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
+                if (predefined == null)
+                {
+                    return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
+                {
+                    { nameof(contactRequest.SubCategory), new[] { $"Invalid subcategory for Business: {subCategoryKey}" } }
+                });
+                }
+                subcategoryId = predefined.Id;
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(subCategoryKey))
+                {
+                    var existing = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
+                    if (existing != null)
+                    {
+                        subcategoryId = existing.Id;
+                    }
+
+                    var createdSubcategory = await _categoryRepository.CreateSubcategoryAsync(category.Id, subCategoryKey, subCategoryKey);
+                    subcategoryId = createdSubcategory.Id;
+                }
+            }
+        }
+
         var contact = new Contact
         {
             FirstName = contactRequest.FirstName,
             LastName = contactRequest.LastName,
             Email = contactRequest.Email,
             DateOfBirth = contactRequest.DateOfBirth,
-            Category = parsedCategory,
-            SubCategory = contactRequest.SubCategory,
+            CategoryId = category.Id,
+            SubcategoryId = subcategoryId,
             TelephoneNumber = contactRequest.TelephoneNumber
         };
 
@@ -77,7 +112,16 @@ public class ContactService : IContactService
             return OperationResult<Contact>.NotFoundResult();
         }
 
-        if (!Enum.TryParse<ContactType>(request.Category, true, out var parsedCategory))
+        var category = await _categoryRepository.GetCategoryByNameAsync(request.Category);
+        if (category == null)
+        {
+            return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
+            {
+                { nameof(request.Category), new[] { $"Invalid category: {request.Category}" } }
+            });
+        }
+        var allowedCategories = new[] { "Private", "Business", "Other" };
+        if (!allowedCategories.Any(a => a.Equals(category.Name, StringComparison.OrdinalIgnoreCase)))
         {
             return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
             {
@@ -85,13 +129,45 @@ public class ContactService : IContactService
             });
         }
 
+        int? subcategoryId = null;
+        var subCategoryKey = request.SubCategory?.Trim();
+        if (subCategoryKey != null)
+        {
+            if (category.Name.Equals("Business", StringComparison.OrdinalIgnoreCase))
+            {
+                var predefined = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
+                if (predefined == null)
+                {
+                    return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
+                {
+                    { nameof(request.SubCategory), new[] { $"Invalid subcategory for Business: {subCategoryKey}" } }
+                });
+                }
+                subcategoryId = predefined.Id;
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(subCategoryKey))
+                {
+                    var existing = await _categoryRepository.GetSubcategoryByNameAsync(category.Id, subCategoryKey);
+                    if (existing != null)
+                    {
+                        subcategoryId = existing.Id;
+                    }
+
+                    var createdSubcategory = await _categoryRepository.CreateSubcategoryAsync(category.Id, subCategoryKey, subCategoryKey);
+                    subcategoryId = createdSubcategory.Id;
+                }
+            }
+        }
+
         dbContact.DateOfBirth = request.DateOfBirth;
         dbContact.FirstName = request.FirstName;
         dbContact.LastName = request.LastName;
         dbContact.Email = request.Email;
         dbContact.TelephoneNumber = request.TelephoneNumber;
-        dbContact.Category = parsedCategory;
-        dbContact.SubCategory = request.SubCategory;
+        dbContact.CategoryId = category.Id;
+        dbContact.SubcategoryId = subcategoryId;
 
         await _contactRepository.SaveContactChangesAsync();
         return OperationResult<Contact>.Successful(dbContact);
