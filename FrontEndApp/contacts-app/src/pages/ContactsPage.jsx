@@ -9,7 +9,6 @@ export default function ContactsPage() {
   const [contacts, setContacts] = useState([]);
   const { isLogged, logout } = useAuth();
   const navigate = useNavigate();
-  console.log(isLogged);
 
   const loadContacts = async () => setContacts(await getContacts());
 

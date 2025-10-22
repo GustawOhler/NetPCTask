@@ -1,11 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using ContactList.DTOs;
 using ContactList.Entities;
 using ContactList.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ContactList.BusinessLogicServices;
 
@@ -22,34 +18,50 @@ public class UserService : IUserService
         this._userManager = userManager;
     }
 
-    public async Task<IdentityResult> Register(string username, string email, string password)
+    public async Task<OperationResult<IdentityResult>> Register(RegisterRequest registerRequest)
     {
-        if (await _repository.GetUserByUsernameAsync(username) != null)
+        if (await _repository.GetUserByUsernameAsync(registerRequest.UserName) != null)
         {
-            throw new Exception("User with given name already exists");
+            return OperationResult<IdentityResult>.ValidationFailed(new Dictionary<string, string[]>
+            {
+                { nameof(registerRequest.UserName), new[] { "User with given username already exists" } }
+            });
         }
 
-        if (await _repository.GetUserByEmailAsync(email) != null)
+        if (await _repository.GetUserByEmailAsync(registerRequest.Email) != null)
         {
-            throw new Exception("User with given email already exists");
+            return OperationResult<IdentityResult>.ValidationFailed(new Dictionary<string, string[]>
+            {
+                { nameof(registerRequest.Email), new[] { "User with given email already exists" } }
+            });
         }
 
         var user = new User()
         {
-            UserName = username,
-            Email = email
+            UserName = registerRequest.UserName,
+            Email = registerRequest.Email
         };
-        return await _userManager.CreateAsync(user, password);
+        var result = await _userManager.CreateAsync(user, registerRequest.Password);
+
+        if (result.Succeeded)
+        {
+            return OperationResult<IdentityResult>.Successful(result);
+        }
+        
+        return OperationResult<IdentityResult>.ValidationFailed(new Dictionary<string, string[]>
+            {
+                { "UserDetails", result.Errors.Select(e => e.Description).ToArray()}
+            });
     }
 
-    public async Task<User?> Login(string username, string password)
+    public async Task<OperationResult<User>> Login(string username, string password)
     {
         var user = await _userManager.FindByNameAsync(username);
-        if (user == null) return null;
+        if (user == null) return OperationResult<User>.NotFoundResult();
 
         var isValid = await _userManager.CheckPasswordAsync(user, password);
-        if (!isValid) return null;
+        if (!isValid) return OperationResult<User>.UnauthorizedResult();
 
-        return user;
+        return OperationResult<User>.Successful(user);
     }
 }

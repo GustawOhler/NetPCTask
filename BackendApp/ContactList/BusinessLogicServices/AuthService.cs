@@ -41,4 +41,20 @@ public class AuthService : IAuthService
 
         return (JwtSecurityToken)validatedToken;
     }
+
+    public OperationResult<string> RefreshToken(string cookie)
+    {
+        try
+        {
+            var jwt = this.ValidateJwtToken(cookie);
+            var username = jwt.Claims.First(c => c.Type == ClaimTypes.Name).Value;
+
+            var newAccessToken = this.GenerateJwtToken(username, DateTime.UtcNow.AddMinutes(15));
+            return OperationResult<string>.Successful(newAccessToken);
+        }
+        catch
+        {
+            return OperationResult<string>.UnauthorizedResult();
+        }
+    }
 }

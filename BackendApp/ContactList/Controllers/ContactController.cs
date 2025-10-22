@@ -21,7 +21,7 @@ public class ContactController : ControllerBase
         return Ok(contacts);
     }
 
-    [HttpGet]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetContactById(int id)
     {
         var result = await _contactService.GetContactByIdAsync(id);
@@ -42,10 +42,15 @@ public class ContactController : ControllerBase
         {
             if (result.ValidationErrors != null)
             {
-                return ValidationProblem(result.ValidationErrors);
+                return BadRequest(new
+                {
+                    title = "Validation error",
+                    status = 400,
+                    errors = result.ValidationErrors
+                });
             }
 
-            return BadRequest();
+            return Problem();
         }
 
         var createdContact = result.Value!;
@@ -64,7 +69,12 @@ public class ContactController : ControllerBase
 
         if (result.ValidationErrors != null)
         {
-            return ValidationProblem(result.ValidationErrors);
+            return BadRequest(new
+            {
+                title = "Validation error",
+                status = 400,
+                errors = result.ValidationErrors
+            });
         }
 
         return Ok(result.Value);

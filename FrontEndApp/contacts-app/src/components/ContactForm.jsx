@@ -38,9 +38,9 @@ export default function ContactForm({ onSave, initialData }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-      <input placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-      <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+      <input placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+      <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input
         placeholder="Telephone Number"
         value={telephoneNumber}
@@ -53,7 +53,7 @@ export default function ContactForm({ onSave, initialData }) {
 
       <label>
         Category:
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
           <option value="">-- select category --</option>
           <option value="Private">Private</option>
           <option value="Business">Business</option>

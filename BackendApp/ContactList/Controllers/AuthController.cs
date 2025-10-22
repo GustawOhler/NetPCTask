@@ -27,14 +27,31 @@ public class AuthController : ControllerBase
     {
         if (!MiniValidator.TryValidate(req, out var errors))
         {
-            // return ValidationProblem(errors);
-            return ValidationProblem();
+            return BadRequest(new
+            {
+                title = "Validation error",
+                status = 400,
+                errors = errors
+            });
         }
 
-        var user = await _userService.Login(req.UserName, req.Password);
+        var result = await _userService.Login(req.UserName, req.Password);
 
-        if (user == null) return Unauthorized();
+        if (!result.Success)
+        {
+            if (result.NotFound)
+            {
+                return NotFound();
+            }
+            if (result.Unauthorized)
+            {
+                return Unauthorized();
+            }
+            return Problem();
+        }
 
+        var user = result.Value!;
+        
         var accessToken = _authService.GenerateJwtToken(user.UserName!, DateTime.UtcNow.AddMinutes(15));
         var refreshToken = _authService.GenerateJwtToken(user.UserName!, DateTime.UtcNow.AddDays(7)); // 7 days
 
@@ -57,18 +74,14 @@ public class AuthController : ControllerBase
         if (cookie == null)
             return Unauthorized();
 
-        try
-        {
-            var jwt = _authService.ValidateJwtToken(cookie);
-            var username = jwt.Claims.First(c => c.Type == ClaimTypes.Name).Value;
+        var result = _authService.RefreshToken(cookie);
 
-            var newAccessToken = _authService.GenerateJwtToken(username, DateTime.UtcNow.AddMinutes(15));
-            return Ok(new { accessToken = newAccessToken });
-        }
-        catch
+        if (result.Unauthorized)
         {
             return Unauthorized();
         }
+
+        return Ok(new { accessToken = result.Value });
     }
 
     [HttpPost("register")]
@@ -76,15 +89,24 @@ public class AuthController : ControllerBase
     {
         if (!MiniValidator.TryValidate(req, out var errors))
         {
-            return ValidationProblem();
-            // Add errors
+            return BadRequest(new
+            {
+                title = "Validation error",
+                status = 400,
+                errors = errors
+            });
         }
 
-        var result = await _userService.Register(req.UserName, req.Email, req.Password);
+        var result = await _userService.Register(req);
 
-        if (!result.Succeeded)
+        if (result.ValidationErrors != null)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(new
+            {
+                title = "Validation error",
+                status = 400,
+                errors = result.ValidationErrors
+            });
         }
 
         return Ok();

@@ -18,26 +18,34 @@ public class ContactService : IContactService
         return await _contactRepository.GetAllContactsAsync();
     }
 
-    public async Task<ContactOperationResult<Contact>> GetContactByIdAsync(int id)
+    public async Task<OperationResult<Contact>> GetContactByIdAsync(int id)
     {
         var contact = await _contactRepository.GetContactByIdAsync(id);
         return contact == null
-            ? ContactOperationResult<Contact>.NotFoundResult()
-            : ContactOperationResult<Contact>.Successful(contact);
+            ? OperationResult<Contact>.NotFoundResult()
+            : OperationResult<Contact>.Successful(contact);
     }
 
-    public async Task<ContactOperationResult<Contact>> CreateContactAsync(CreateContactRequest contactRequest)
+    public async Task<OperationResult<Contact>> CreateContactAsync(CreateContactRequest contactRequest)
     {
         if (!MiniValidator.TryValidate(contactRequest, out var errors))
         {
-            return ContactOperationResult<Contact>.ValidationFailed(errors);
+            return OperationResult<Contact>.ValidationFailed(errors);
         }
 
         if (!Enum.TryParse<ContactType>(contactRequest.Category, true, out var parsedCategory))
         {
-            return ContactOperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
+            return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
             {
                 { nameof(contactRequest.Category), new[] { $"Invalid category: {contactRequest.Category}" } }
+            });
+        }
+
+        if (await _contactRepository.GetContactByEmailAsync(contactRequest.Email) != null)
+        {
+            return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
+            {
+                { nameof(contactRequest.Email), new[] { $"Contact with given email already exists" } }
             });
         }
 
@@ -53,25 +61,25 @@ public class ContactService : IContactService
         };
 
         await _contactRepository.InsertContactAsync(contact);
-        return ContactOperationResult<Contact>.Successful(contact);
+        return OperationResult<Contact>.Successful(contact);
     }
 
-    public async Task<ContactOperationResult<Contact>> UpdateContactAsync(EditContactRequest request)
+    public async Task<OperationResult<Contact>> UpdateContactAsync(EditContactRequest request)
     {
         if (!MiniValidator.TryValidate(request, out var errors))
         {
-            return ContactOperationResult<Contact>.ValidationFailed(errors);
+            return OperationResult<Contact>.ValidationFailed(errors);
         }
 
         var dbContact = await _contactRepository.GetContactByIdAsync(request.Id);
         if (dbContact == null)
         {
-            return ContactOperationResult<Contact>.NotFoundResult();
+            return OperationResult<Contact>.NotFoundResult();
         }
 
         if (!Enum.TryParse<ContactType>(request.Category, true, out var parsedCategory))
         {
-            return ContactOperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
+            return OperationResult<Contact>.ValidationFailed(new Dictionary<string, string[]>
             {
                 { nameof(request.Category), new[] { $"Invalid category: {request.Category}" } }
             });
@@ -86,18 +94,18 @@ public class ContactService : IContactService
         dbContact.SubCategory = request.SubCategory;
 
         await _contactRepository.SaveContactChangesAsync();
-        return ContactOperationResult<Contact>.Successful(dbContact);
+        return OperationResult<Contact>.Successful(dbContact);
     }
 
-    public async Task<ContactOperationResult<bool>> DeleteContactAsync(int id)
+    public async Task<OperationResult<bool>> DeleteContactAsync(int id)
     {
         var contact = await _contactRepository.GetContactByIdAsync(id);
         if (contact == null)
         {
-            return ContactOperationResult<bool>.NotFoundResult();
+            return OperationResult<bool>.NotFoundResult();
         }
 
         await _contactRepository.DeleteContactAsync(contact);
-        return ContactOperationResult<bool>.Successful(true);
+        return OperationResult<bool>.Successful(true);
     }
 }

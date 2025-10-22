@@ -37,4 +37,9 @@ public class ContactRepository : IContactRepository
         await _context.SaveChangesAsync();
         return contact;
     }
+
+    public async Task<Contact?> GetContactByEmailAsync(string email)
+    {
+        return await _context.Contacts.FirstOrDefaultAsync(x => x.Email == email);
+    }
 }

@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ContactForm from "../components/ContactForm";
+import ErrorMessage from "../components/ErrorMessage";
+import ValidationError from "../helpers/ValidationError";
 
 export default function EditContactPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [contact, setContact] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState([]);
 
   useEffect(() => {
     const fetchContact = async () => {
@@ -16,8 +19,7 @@ export default function EditContactPage() {
         const data = await getContactById(id);
         setContact(data);
       } catch (err) {
-        console.error("Failed to load contact", err);
-        alert("Failed to load contact");
+        setErrorMessage("Failed to load contact");
       } finally {
         setLoading(false);
       }
@@ -30,8 +32,11 @@ export default function EditContactPage() {
       await updateContact(id, updated);
       navigate("/");
     } catch (err) {
-      console.error("Failed to update contact", err);
-      alert("Update failed");
+      if (err instanceof ValidationError) {
+        setErrorMessage(err.getMessages());
+        return;
+      }
+      setErrorMessage(err.message);
     }
   };
 
@@ -42,6 +47,7 @@ export default function EditContactPage() {
     <div>
       <h2>Edit Contact</h2>
       <ContactForm onSave={handleSubmit} initialData={contact} />
+      <ErrorMessage message={errorMessage} />
     </div>
   );
 }

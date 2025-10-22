@@ -5,4 +5,5 @@ public interface IAuthService
 {
     public string GenerateJwtToken(string username, DateTime expirationDate);
     public JwtSecurityToken ValidateJwtToken(string token);
+    public OperationResult<string> RefreshToken(string cookie);
 }
