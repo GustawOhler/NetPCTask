@@ -19,8 +19,8 @@ export default function ContactList({ contacts, isLogged, onEdit, onDelete }) {
             <td>{c.firstName}</td>
             <td>{c.lastName}</td>
             <td>{c.email}</td>
-            <td>{c.category}</td>
-            <td>{c.subCategory}</td>
+            <td>{c.category.visibleName}</td>
+            <td>{c.subcategory?.visibleName ?? "-"}</td>
             <td>{c.telephoneNumber}</td>
             <td>{c.dateOfBirth}</td>
             <td>

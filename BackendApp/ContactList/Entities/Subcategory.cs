@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContactList.Entities;
@@ -15,6 +16,6 @@ public class Subcategory
     public string VisibleName { get; set; } = string.Empty;
 
     public int CategoryId { get; set; }
+    [JsonIgnore]
     public Category Category { get; set; } = null!;
 }
-

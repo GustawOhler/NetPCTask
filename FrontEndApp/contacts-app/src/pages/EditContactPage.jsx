@@ -5,26 +5,37 @@ import { useNavigate, useParams } from "react-router-dom";
 import ContactForm from "../components/ContactForm";
 import ErrorMessage from "../components/ErrorMessage";
 import ValidationError from "../helpers/ValidationError";
+import { getCategories } from "../api/categoryApi";
 
 export default function EditContactPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [contact, setContact] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState([]);
 
   useEffect(() => {
-    const fetchContact = async () => {
+    let ignore = false;
+
+    const fetchData = async () => {
       try {
-        const data = await getContactById(id);
-        setContact(data);
+        const [contactData, categoriesData] = await Promise.all([getContactById(id), getCategories()]);
+        if (ignore) return;
+        setContact(contactData);
+        setCategories(categoriesData);
       } catch (err) {
-        setErrorMessage("Failed to load contact");
+        if (ignore) return;
+        setErrorMessage(err instanceof Error ? err.message : "Failed to load data");
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     };
-    fetchContact();
+
+    fetchData();
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   const handleSubmit = async (updated) => {
@@ -46,7 +57,7 @@ export default function EditContactPage() {
   return (
     <div>
       <h2>Edit Contact</h2>
-      <ContactForm onSave={handleSubmit} initialData={contact} />
+      <ContactForm onSave={handleSubmit} initialData={contact} categories={categories} />
       <ErrorMessage message={errorMessage} />
     </div>
   );
