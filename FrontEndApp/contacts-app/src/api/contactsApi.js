@@ -54,7 +54,7 @@ export async function updateContact(id, contact) {
   if (res.status === 401 || res.status === 403) {
     // probably expired token -> refresh it and try again
     await refreshAccessToken();
-    res = await fetch(`${BASE_URL}${API_URL}`, {
+    res = await fetch(`${BASE_URL}${API_URL}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify(contact),

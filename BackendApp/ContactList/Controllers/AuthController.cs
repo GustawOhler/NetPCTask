@@ -60,7 +60,7 @@ public class AuthController : ControllerBase
             Secure = false,
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.UtcNow.AddDays(7),
-            Path = "/api/auth/refresh"
+            Path = "/api/Auth/refresh"
         });
 
         return Ok(new { accessToken });
