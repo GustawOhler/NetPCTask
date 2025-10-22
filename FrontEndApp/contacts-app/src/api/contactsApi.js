@@ -2,7 +2,7 @@ import { BASE_URL } from "../helpers/constants";
 import ValidationError from "../helpers/ValidationError";
 import { refreshAccessToken } from "./authApi";
 
-const API_URL = "/api/Contact";
+const API_URL = "/api/Contacts";
 
 export async function getContacts() {
   const res = await fetch(`${BASE_URL}${API_URL}`, { headers: authHeader() });
